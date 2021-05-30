@@ -1,0 +1,2251 @@
+{
+  "vulnerabilities": [
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N",
+      "alternativeIds": [],
+      "creationTime": "2021-02-01T13:11:56.558734Z",
+      "credit": [
+        "Wang Baohua"
+      ],
+      "cvssScore": 3.1,
+      "description": "## Overview\n[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\n\nAffected versions of this package are vulnerable to Directory Traversal via the `django.utils.archive.extract()` function, which is used by `startapp --template` and `startproject --template`. This can happen via an archive with absolute paths or relative paths with dot segments.\n\n## Details\n\nA Directory Traversal attack (also known as path traversal) aims to access files and directories that are stored outside the intended folder. By manipulating files with \"dot-dot-slash (../)\" sequences and its variations, or by using absolute file paths, it may be possible to access arbitrary files and directories stored on file system, including application source code, configuration, and other critical system files.\n\nDirectory Traversal vulnerabilities can be generally divided into two types:\n\n- **Information Disclosure**: Allows the attacker to gain information about the folder structure or read the contents of sensitive files on the system.\n\n`st` is a module for serving static files on web pages, and contains a [vulnerability of this type](https://snyk.io/vuln/npm:st:20140206). In our example, we will serve files from the `public` route.\n\nIf an attacker requests the following URL from our server, it will in turn leak the sensitive private key of the root user.\n\n```\ncurl http://localhost:8080/public/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/root/.ssh/id_rsa\n```\n**Note** `%2e` is the URL encoded version of `.` (dot).\n\n- **Writing arbitrary files**: Allows the attacker to create or replace existing files. This type of vulnerability is also known as `Zip-Slip`. \n\nOne way to achieve this is by using a malicious `zip` archive that holds path traversal filenames. When each filename in the zip archive gets concatenated to the target extraction folder, without validation, the final path ends up outside of the target folder. If an executable or a configuration file is overwritten with a file containing malicious code, the problem can turn into an arbitrary code execution issue quite easily.\n\nThe following is an example of a `zip` archive with one benign file and one malicious file. Extracting the malicious file will result in traversing out of the target folder, ending up in `/root/.ssh/` overwriting the `authorized_keys` file:\n\n```\n2018-04-15 22:04:29 .....           19           19  good.txt\n2018-04-15 22:04:42 .....           20           20  ../../../../../../root/.ssh/authorized_keys\n```\n\n## Remediation\nUpgrade `django` to version 2.2.18, 3.0.12, 3.1.6 or higher.\n## References\n- [Django Advisory](https://www.djangoproject.com/weblog/2021/feb/01/security-releases/)\n- [GitHub Commit](https://github.com/django/django/commit/05413afa8c18cdb978fcdf470e09f7a12b234a23)\n",
+      "disclosureTime": "2021-02-01T12:56:31Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "2.2.18",
+        "3.0.12",
+        "3.1.6"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-DJANGO-1066259",
+      "identifiers": {
+        "CVE": [
+          "CVE-2021-3281"
+        ],
+        "CWE": [
+          "CWE-22"
+        ],
+        "GHSA": [
+          "GHSA-fvgf-6h6h-3322"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2021-02-01T15:11:08.053324Z",
+      "moduleName": "django",
+      "packageManager": "pip",
+      "packageName": "django",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2021-02-01T15:11:08.261009Z",
+      "references": [
+        {
+          "title": "Django Advisory",
+          "url": "https://www.djangoproject.com/weblog/2021/feb/01/security-releases/"
+        },
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/django/django/commit/05413afa8c18cdb978fcdf470e09f7a12b234a23"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[1.4,2.2.18)",
+          "[3.0a1,3.0.12)",
+          "[3.1a1,3.1.6)"
+        ]
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "title": "Directory Traversal",
+      "from": [
+        "pip-playground@0.0.0",
+        "django@1.11.27"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "django",
+      "version": "1.11.27"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N",
+      "alternativeIds": [],
+      "creationTime": "2021-05-04T12:51:50.753891Z",
+      "credit": [
+        "Jasu Viding"
+      ],
+      "cvssScore": 3.3,
+      "description": "## Overview\n[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\n\nAffected versions of this package are vulnerable to Directory Traversal. `MultiPartParser`, `UploadedFile`, and `FieldFile` allow directory-traversal via uploaded files with suitably crafted file names.\n\n## Details\n\nA Directory Traversal attack (also known as path traversal) aims to access files and directories that are stored outside the intended folder. By manipulating files with \"dot-dot-slash (../)\" sequences and its variations, or by using absolute file paths, it may be possible to access arbitrary files and directories stored on file system, including application source code, configuration, and other critical system files.\n\nDirectory Traversal vulnerabilities can be generally divided into two types:\n\n- **Information Disclosure**: Allows the attacker to gain information about the folder structure or read the contents of sensitive files on the system.\n\n`st` is a module for serving static files on web pages, and contains a [vulnerability of this type](https://snyk.io/vuln/npm:st:20140206). In our example, we will serve files from the `public` route.\n\nIf an attacker requests the following URL from our server, it will in turn leak the sensitive private key of the root user.\n\n```\ncurl http://localhost:8080/public/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/root/.ssh/id_rsa\n```\n**Note** `%2e` is the URL encoded version of `.` (dot).\n\n- **Writing arbitrary files**: Allows the attacker to create or replace existing files. This type of vulnerability is also known as `Zip-Slip`. \n\nOne way to achieve this is by using a malicious `zip` archive that holds path traversal filenames. When each filename in the zip archive gets concatenated to the target extraction folder, without validation, the final path ends up outside of the target folder. If an executable or a configuration file is overwritten with a file containing malicious code, the problem can turn into an arbitrary code execution issue quite easily.\n\nThe following is an example of a `zip` archive with one benign file and one malicious file. Extracting the malicious file will result in traversing out of the target folder, ending up in `/root/.ssh/` overwriting the `authorized_keys` file:\n\n```\n2018-04-15 22:04:29 .....           19           19  good.txt\n2018-04-15 22:04:42 .....           20           20  ../../../../../../root/.ssh/authorized_keys\n```\n\n## Remediation\nUpgrade `django` to version 2.2.21, 3.1.9, 3.2.1 or higher.\n## References\n- [Django Advisory](https://www.djangoproject.com/weblog/2021/may/04/security-releases/)\n- [GitHub Commit](https://github.com/django/django/commit/c98f446c188596d4ba6de71d1b77b4a6c5c2a007)\n",
+      "disclosureTime": "2021-05-04T12:44:10Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "2.2.21",
+        "3.1.9",
+        "3.2.1"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-DJANGO-1279042",
+      "identifiers": {
+        "CVE": [
+          "CVE-2021-31542"
+        ],
+        "CWE": [
+          "CWE-22"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2021-05-04T14:45:09.894750Z",
+      "moduleName": "django",
+      "packageManager": "pip",
+      "packageName": "django",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2021-05-04T14:45:10.137628Z",
+      "references": [
+        {
+          "title": "Django Advisory",
+          "url": "https://www.djangoproject.com/weblog/2021/may/04/security-releases/"
+        },
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/django/django/commit/c98f446c188596d4ba6de71d1b77b4a6c5c2a007"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[, 2.2.21)",
+          "[3.0, 3.1.9)",
+          "[3.2, 3.2.1)"
+        ]
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "title": "Directory Traversal",
+      "from": [
+        "pip-playground@0.0.0",
+        "django@1.11.27"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "django",
+      "version": "1.11.27"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+      "alternativeIds": [],
+      "creationTime": "2021-05-06T14:52:58.420987Z",
+      "credit": [
+        "Unknown"
+      ],
+      "cvssScore": 7.3,
+      "description": "## Overview\n[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\n\nAffected versions of this package are vulnerable to HTTP Header Injection. In Python 3.9.5+ urllib.parse() automatically removes ASCII newlines and tabs from URLs. Unfortunately it created an issue in the URLValidator. URLValidator uses `urllib.urlsplit()` and `urllib.urlunsplit()` for creating a URL variant with Punycode which no longer contains newlines and tabs in Python 3.9.5+. As a consequence, the regular expression matched the URL (without unsafe characters) and the source value (with unsafe characters) was considered valid.\r\n\r\nThis issue was introduced by the [bpo-43882](https://bugs.python.org/issue43882) fix.\n## Remediation\nUpgrade `django` to version 3.2.2, 3.1.10, 2.2.22 or higher.\n## References\n- [Django Security Releases](https://www.djangoproject.com/weblog/2021/may/06/security-releases/)\n- [GitHub Commit](https://github.com/django/django/commit/e1e81aa1c4427411e3c68facdd761229ffea6f6f)\n- [GitHub PR](https://github.com/django/django/pull/14360)\n- [Mail Archive](https://www.mail-archive.com/debian-bugs-dist@lists.debian.org/msg1804086.html)\n",
+      "disclosureTime": "2021-05-06T14:44:15Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "2.2.22",
+        "3.1.10",
+        "3.2.2"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-DJANGO-1290072",
+      "identifiers": {
+        "CVE": [
+          "CVE-2021-32052"
+        ],
+        "CWE": [
+          "CWE-644"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2021-05-06T15:41:43.922301Z",
+      "moduleName": "django",
+      "packageManager": "pip",
+      "packageName": "django",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2021-05-06T15:41:44.175836Z",
+      "references": [
+        {
+          "title": "Django Security Releases",
+          "url": "https://www.djangoproject.com/weblog/2021/may/06/security-releases/"
+        },
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/django/django/commit/e1e81aa1c4427411e3c68facdd761229ffea6f6f"
+        },
+        {
+          "title": "GitHub PR",
+          "url": "https://github.com/django/django/pull/14360"
+        },
+        {
+          "title": "Mail Archive",
+          "url": "https://www.mail-archive.com/debian-bugs-dist@lists.debian.org/msg1804086.html"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[3.2,3.2.2)",
+          "[3.0,3.1.10)",
+          "[,2.2.22)"
+        ]
+      },
+      "severity": "high",
+      "severityWithCritical": "high",
+      "title": "HTTP Header Injection",
+      "from": [
+        "pip-playground@0.0.0",
+        "django@1.11.27"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "django",
+      "version": "1.11.27"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L/E:P/RL:O/RC:R",
+      "alternativeIds": [],
+      "creationTime": "2020-02-03T13:39:03.460147Z",
+      "credit": [
+        "Simon Charette"
+      ],
+      "cvssScore": 7.3,
+      "description": "## Overview\n[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\n\nAffected versions of this package are vulnerable to SQL Injection. If untrusted data is used as a `StringAgg` delimiter (e.g., in Django applications that offer downloads of data as a series of rows with a user-specified column delimiter) by passing a suitably crafted delimiter to a `contrib.postgres.aggregates.StringAgg` instance, it is possible to break escaping and inject malicious SQL.\n## Remediation\nUpgrade `django` to version 3.0.3, 2.2.10, 1.11.28 or higher.\n## References\n- [Django Google Group Report](https://groups.google.com/forum/#!topic/django-announce/X45S86X5bZI)\n- [Django Security Release](https://www.djangoproject.com/weblog/2020/feb/03/security-releases/)\n- [GitHub PoC](https://github.com/secoba/DjVul_StringAgg)\n",
+      "disclosureTime": "2020-02-03T13:20:48Z",
+      "exploit": "Proof of Concept",
+      "fixedIn": [
+        "1.11.28",
+        "2.2.10",
+        "3.0.3"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-DJANGO-543998",
+      "identifiers": {
+        "CVE": [
+          "CVE-2020-7471"
+        ],
+        "CWE": [
+          "CWE-89"
+        ],
+        "GHSA": [
+          "GHSA-hmr4-m2h5-33qx"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2020-06-12T14:37:05.244432Z",
+      "moduleName": "django",
+      "packageManager": "pip",
+      "packageName": "django",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2020-02-03T13:20:48Z",
+      "references": [
+        {
+          "title": "Django Google Group Report",
+          "url": "https://groups.google.com/forum/%23%21topic/django-announce/X45S86X5bZI"
+        },
+        {
+          "title": "Django Security Release",
+          "url": "https://www.djangoproject.com/weblog/2020/feb/03/security-releases/"
+        },
+        {
+          "title": "GitHub PoC",
+          "url": "https://github.com/secoba/DjVul_StringAgg"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[3.0,3.0.3)",
+          "[2.2,2.2.10)",
+          "[1.11,1.11.28)"
+        ]
+      },
+      "severity": "high",
+      "severityWithCritical": "high",
+      "title": "SQL Injection",
+      "from": [
+        "pip-playground@0.0.0",
+        "django@1.11.27"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "django",
+      "version": "1.11.27"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:L/A:L",
+      "alternativeIds": [],
+      "creationTime": "2020-03-05T10:22:44.844667Z",
+      "credit": [
+        "Norbert Szetei of Doyensec"
+      ],
+      "cvssScore": 7.6,
+      "description": "## Overview\n[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\n\nAffected versions of this package are vulnerable to SQL Injection via \"tolerance\" parameter in GIS functions and aggregates on Oracle.\n## Remediation\nUpgrade `django` to version 3.0.4, 2.2.11, 1.11.29 or higher.\n## References\n- [Django Security Release](https://www.djangoproject.com/weblog/2020/mar/04/security-releases/)\n- [GitHub Commit #1](https://github.com/django/django/commit/02d97f3c9a88adc890047996e5606180bd1c6166)\n- [GitHub Commit #2](https://github.com/django/django/commit/26a5cf834526e291db00385dd33d319b8271fc4c)\n- [GitHub Commit #3](https://github.com/django/django/commit/fe886a3b58a93cfbe8864b485f93cb6d426cd1f2)\n- [RedHat Bugzilla](https://bugzilla.redhat.com/show_bug.cgi?id=1810088)\n",
+      "disclosureTime": "2020-03-03T10:20:30Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "1.11.29",
+        "2.2.11",
+        "3.0.4"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-DJANGO-559326",
+      "identifiers": {
+        "CVE": [
+          "CVE-2020-9402"
+        ],
+        "CWE": [
+          "CWE-89"
+        ],
+        "GHSA": [
+          "GHSA-3gh2-xw74-jmcw"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2020-06-12T14:37:00.802569Z",
+      "moduleName": "django",
+      "packageManager": "pip",
+      "packageName": "django",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2020-03-05T10:20:29Z",
+      "references": [
+        {
+          "title": "Django Security Release",
+          "url": "https://www.djangoproject.com/weblog/2020/mar/04/security-releases/"
+        },
+        {
+          "title": "GitHub Commit #1",
+          "url": "https://github.com/django/django/commit/02d97f3c9a88adc890047996e5606180bd1c6166"
+        },
+        {
+          "title": "GitHub Commit #2",
+          "url": "https://github.com/django/django/commit/26a5cf834526e291db00385dd33d319b8271fc4c"
+        },
+        {
+          "title": "GitHub Commit #3",
+          "url": "https://github.com/django/django/commit/fe886a3b58a93cfbe8864b485f93cb6d426cd1f2"
+        },
+        {
+          "title": "RedHat Bugzilla",
+          "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1810088"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[3.0.0,3.0.4)",
+          "[2.2.0,2.2.11)",
+          "[,1.11.29)"
+        ]
+      },
+      "severity": "high",
+      "severityWithCritical": "high",
+      "title": "SQL Injection",
+      "from": [
+        "pip-playground@0.0.0",
+        "django@1.11.27"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "django",
+      "version": "1.11.27"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "alternativeIds": [],
+      "creationTime": "2021-01-28T07:59:07.176165Z",
+      "credit": [
+        "Ben Caller"
+      ],
+      "cvssScore": 7.5,
+      "description": "## Overview\n[httplib2](https://github.com/httplib2/httplib2) is a small HTTP client library for Python.\n\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS). A malicious server which responds with long series of `\\xa0` characters in the `www-authenticate` header, may cause a CPU burn while parsing the header of the `httplib2` client accessing server.\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its original and legitimate users. There are many types of DoS attacks, ranging from trying to clog the network pipes to the system by generating a large volume of traffic from many machines (a Distributed Denial of Service - DDoS - attack) to sending crafted requests that cause a system to crash or take a disproportional amount of time to process.\n\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Regular expressions are incredibly powerful, but they aren't very intuitive and can ultimately end up making it easy for attackers to take your site down.\n\nLet’s take the following regular expression as an example:\n```js\nregex = /A(B|C+)+D/\n```\n\nThis regular expression accomplishes the following:\n- `A` The string must start with the letter 'A'\n- `(B|C+)+` The string must then follow the letter A with either the letter 'B' or some number of occurrences of the letter 'C' (the `+` matches one or more times). The `+` at the end of this section states that we can look for one or more matches of this section.\n- `D` Finally, we ensure this section of the string ends with a 'D'\n\nThe expression would match inputs such as `ABBD`, `ABCCCCD`, `ABCBCCCD` and `ACCCCCD`\n\nIt most cases, it doesn't take very long for a regex engine to find a match:\n\n```bash\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCD\")'\n0.04s user 0.01s system 95% cpu 0.052 total\n\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCX\")'\n1.79s user 0.02s system 99% cpu 1.812 total\n```\n\nThe entire process of testing it against a 30 characters long string takes around ~52ms. But when given an invalid string, it takes nearly two seconds to complete the test, over ten times as long as it took to test a valid string. The dramatic difference is due to the way regular expressions get evaluated.\n\nMost Regex engines will work very similarly (with minor differences). The engine will match the first possible way to accept the current character and proceed to the next one. If it then fails to match the next one, it will backtrack and see if there was another way to digest the previous character. If it goes too far down the rabbit hole only to find out the string doesn’t match in the end, and if many characters have multiple valid regex paths, the number of backtracking steps can become very large, resulting in what is known as _catastrophic backtracking_.\n\nLet's look at how our expression runs into this problem, using a shorter string: \"ACCCX\". While it seems fairly straightforward, there are still four different ways that the engine could match those three C's:\n1. CCC\n2. CC+C\n3. C+CC\n4. C+C+C.\n\nThe engine has to try each of those combinations to see if any of them potentially match against the expression. When you combine that with the other steps the engine must take, we can use [RegEx 101 debugger](https://regex101.com/debugger) to see the engine has to take a total of 38 steps before it can determine the string doesn't match.\n\nFrom there, the number of steps the engine must use to validate a string just continues to grow.\n\n| String | Number of C's | Number of steps |\n| -------|-------------:| -----:|\n| ACCCX | 3 | 38\n| ACCCCX | 4 | 71\n| ACCCCCX | 5 | 136\n| ACCCCCCCCCCCCCCX | 14 | 65,553\n\n\nBy the time the string includes 14 C's, the engine has to take over 65,000 steps just to see if the string is valid. These extreme situations can cause them to work very slowly (exponentially related to input size, as shown above), allowing an attacker to exploit this and can cause the service to excessively consume CPU, resulting in a Denial of Service.\n\n## Remediation\nUpgrade `httplib2` to version 0.19.0 or higher.\n## References\n- [GitHub Commit](https://github.com/httplib2/httplib2/commit/bd9ee252c8f099608019709e22c0d705e98d26bc)\n",
+      "disclosureTime": "2021-01-28T07:58:31Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "0.19.0"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-HTTPLIB2-1065795",
+      "identifiers": {
+        "CVE": [
+          "CVE-2021-21240"
+        ],
+        "CWE": [
+          "CWE-400"
+        ],
+        "GHSA": [
+          "GHSA-93xj-8mrv-444m"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2021-02-09T16:34:49.697202Z",
+      "moduleName": "httplib2",
+      "packageManager": "pip",
+      "packageName": "httplib2",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2021-02-09T16:34:49.902797Z",
+      "references": [
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/httplib2/httplib2/commit/bd9ee252c8f099608019709e22c0d705e98d26bc"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[0,0.19.0)"
+        ]
+      },
+      "severity": "high",
+      "severityWithCritical": "high",
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "from": [
+        "pip-playground@0.0.0",
+        "oauth2@1.9.0.post1",
+        "httplib2@0.10.3"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "httplib2",
+      "version": "0.10.3"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:N/I:H/A:N",
+      "alternativeIds": [],
+      "creationTime": "2020-05-20T17:24:45.182255Z",
+      "credit": [
+        "Recar"
+      ],
+      "cvssScore": 6.8,
+      "description": "## Overview\n[httplib2](https://github.com/httplib2/httplib2) is a small HTTP client library for Python.\n\nAffected versions of this package are vulnerable to CRLF Injection. An attacker controlling an unescaped part of uri for `httplib2.Http.request()` could change request headers and body, send additional hidden requests to same server. This vulnerability impacts software that uses` httplib2` with `uri` constructed by string concatenation, as opposed to proper `urllib` building with escaping.\n## Remediation\nUpgrade `httplib2` to version 0.18.0 or higher.\n## References\n- [GitHub Commit](https://github.com/httplib2/httplib2/commit/a1457cc31f3206cf691d11d2bf34e98865873e9e)\n",
+      "disclosureTime": "2020-05-20T17:21:25Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "0.18.0"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-HTTPLIB2-569758",
+      "identifiers": {
+        "CVE": [
+          "CVE-2020-11078"
+        ],
+        "CWE": [
+          "CWE-93"
+        ],
+        "GHSA": [
+          "GHSA-gg84-qgv9-w4pq"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2020-05-20T17:26:43.364751Z",
+      "moduleName": "httplib2",
+      "packageManager": "pip",
+      "packageName": "httplib2",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2020-05-20T17:26:43.630546Z",
+      "references": [
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/httplib2/httplib2/commit/a1457cc31f3206cf691d11d2bf34e98865873e9e"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,0.18.0)"
+        ]
+      },
+      "severity": "medium",
+      "severityWithCritical": "medium",
+      "title": "CRLF Injection",
+      "from": [
+        "pip-playground@0.0.0",
+        "oauth2@1.9.0.post1",
+        "httplib2@0.10.3"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "httplib2",
+      "version": "0.10.3"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H",
+      "alternativeIds": [],
+      "creationTime": "2020-06-01T10:05:01.471801Z",
+      "credit": [
+        "Ciyfly"
+      ],
+      "cvssScore": 8.2,
+      "description": "## Overview\n[httplib2](https://github.com/httplib2/httplib2) is a small HTTP client library for Python.\n\nAffected versions of this package are vulnerable to CRLF Injection. It allows `%xx` quote of space, CR, LF characters in the URI.\n## Remediation\nUpgrade `httplib2` to version 0.18.0 or higher.\n## References\n- [GitHub Commit](https://github.com/httplib2/httplib2/commit/a1457cc31f3206cf691d11d2bf34e98865873e9e)\n",
+      "disclosureTime": "2020-05-20T09:59:00Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "0.18.0"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-HTTPLIB2-570767",
+      "identifiers": {
+        "CVE": [],
+        "CWE": [
+          "CWE-93"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2020-06-01T15:51:52.311569Z",
+      "moduleName": "httplib2",
+      "packageManager": "pip",
+      "packageName": "httplib2",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2020-06-01T15:51:52.521847Z",
+      "references": [
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/httplib2/httplib2/commit/a1457cc31f3206cf691d11d2bf34e98865873e9e"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,0.18.0)"
+        ]
+      },
+      "severity": "high",
+      "severityWithCritical": "high",
+      "title": "CRLF Injection",
+      "from": [
+        "pip-playground@0.0.0",
+        "oauth2@1.9.0.post1",
+        "httplib2@0.10.3"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "httplib2",
+      "version": "0.10.3"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L/E:P",
+      "alternativeIds": [],
+      "creationTime": "2020-09-25T17:30:26.286074Z",
+      "credit": [
+        "Yeting Li"
+      ],
+      "cvssScore": 5.3,
+      "description": "## Overview\n[jinja2](https://pypi.org/project/Jinja2/) is a template engine written in pure Python. It provides a Django inspired non-XML syntax but supports inline expressions and an optional sandboxed environment.\n\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS). The ReDoS vulnerability is mainly due to the `_punctuation_re regex` operator and its use of multiple wildcards. The last wildcard is the most exploitable as it searches for trailing punctuation.\r\n\r\nThis issue can be mitigated by using Markdown to format user content instead of the urlize filter, or by implementing request timeouts or limiting process memory.\r\n\r\n### PoC by Yeting Li\r\n```\r\nfrom jinja2.utils import urlize\r\nfrom time import perf_counter\r\n\r\nfor i in range(3):\r\n    text = \"abc@\" + \".\" * (i+1)*5000 + \"!\"\r\n    LEN = len(text)\r\n    BEGIN = perf_counter()\r\n    urlize(text)\r\n    DURATION = perf_counter() - BEGIN\r\n    print(f\"{LEN}: took {DURATION} seconds!\")\r\n```\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its original and legitimate users. There are many types of DoS attacks, ranging from trying to clog the network pipes to the system by generating a large volume of traffic from many machines (a Distributed Denial of Service - DDoS - attack) to sending crafted requests that cause a system to crash or take a disproportional amount of time to process.\n\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Regular expressions are incredibly powerful, but they aren't very intuitive and can ultimately end up making it easy for attackers to take your site down.\n\nLet’s take the following regular expression as an example:\n```js\nregex = /A(B|C+)+D/\n```\n\nThis regular expression accomplishes the following:\n- `A` The string must start with the letter 'A'\n- `(B|C+)+` The string must then follow the letter A with either the letter 'B' or some number of occurrences of the letter 'C' (the `+` matches one or more times). The `+` at the end of this section states that we can look for one or more matches of this section.\n- `D` Finally, we ensure this section of the string ends with a 'D'\n\nThe expression would match inputs such as `ABBD`, `ABCCCCD`, `ABCBCCCD` and `ACCCCCD`\n\nIt most cases, it doesn't take very long for a regex engine to find a match:\n\n```bash\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCD\")'\n0.04s user 0.01s system 95% cpu 0.052 total\n\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCX\")'\n1.79s user 0.02s system 99% cpu 1.812 total\n```\n\nThe entire process of testing it against a 30 characters long string takes around ~52ms. But when given an invalid string, it takes nearly two seconds to complete the test, over ten times as long as it took to test a valid string. The dramatic difference is due to the way regular expressions get evaluated.\n\nMost Regex engines will work very similarly (with minor differences). The engine will match the first possible way to accept the current character and proceed to the next one. If it then fails to match the next one, it will backtrack and see if there was another way to digest the previous character. If it goes too far down the rabbit hole only to find out the string doesn’t match in the end, and if many characters have multiple valid regex paths, the number of backtracking steps can become very large, resulting in what is known as _catastrophic backtracking_.\n\nLet's look at how our expression runs into this problem, using a shorter string: \"ACCCX\". While it seems fairly straightforward, there are still four different ways that the engine could match those three C's:\n1. CCC\n2. CC+C\n3. C+CC\n4. C+C+C.\n\nThe engine has to try each of those combinations to see if any of them potentially match against the expression. When you combine that with the other steps the engine must take, we can use [RegEx 101 debugger](https://regex101.com/debugger) to see the engine has to take a total of 38 steps before it can determine the string doesn't match.\n\nFrom there, the number of steps the engine must use to validate a string just continues to grow.\n\n| String | Number of C's | Number of steps |\n| -------|-------------:| -----:|\n| ACCCX | 3 | 38\n| ACCCCX | 4 | 71\n| ACCCCCX | 5 | 136\n| ACCCCCCCCCCCCCCX | 14 | 65,553\n\n\nBy the time the string includes 14 C's, the engine has to take over 65,000 steps just to see if the string is valid. These extreme situations can cause them to work very slowly (exponentially related to input size, as shown above), allowing an attacker to exploit this and can cause the service to excessively consume CPU, resulting in a Denial of Service.\n\n## Remediation\nUpgrade `jinja2` to version 2.11.3 or higher.\n## References\n- [GitHub Additional Information](https://github.com/pallets/jinja/blob/ab81fd9c277900c85da0c322a2ff9d68a235b2e6/src/jinja2/utils.py#L20)\n- [GitHub PR](https://github.com/pallets/jinja/pull/1343)\n",
+      "disclosureTime": "2020-09-25T17:29:19Z",
+      "exploit": "Proof of Concept",
+      "fixedIn": [
+        "2.11.3"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-JINJA2-1012994",
+      "identifiers": {
+        "CVE": [
+          "CVE-2020-28493"
+        ],
+        "CWE": [
+          "CWE-400"
+        ],
+        "GHSA": [
+          "GHSA-g3rq-g295-4j3m"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2021-02-01T19:52:16.877030Z",
+      "moduleName": "jinja2",
+      "packageManager": "pip",
+      "packageName": "jinja2",
+      "patches": [],
+      "proprietary": true,
+      "publicationTime": "2021-02-01T19:52:17Z",
+      "references": [
+        {
+          "title": "GitHub Additional Information",
+          "url": "https://github.com/pallets/jinja/blob/ab81fd9c277900c85da0c322a2ff9d68a235b2e6/src/jinja2/utils.py%23L20"
+        },
+        {
+          "title": "GitHub PR",
+          "url": "https://github.com/pallets/jinja/pull/1343"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,2.11.3)"
+        ]
+      },
+      "severity": "medium",
+      "severityWithCritical": "medium",
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "from": [
+        "pip-playground@0.0.0",
+        "jinja2@2.9.6"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "jinja2",
+      "version": "2.9.6"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:L/I:L/A:L/RL:O",
+      "alternativeIds": [],
+      "creationTime": "2019-04-07T10:24:16.310959Z",
+      "credit": [
+        "Unknown"
+      ],
+      "cvssScore": 6,
+      "description": "## Overview\n[jinja2](https://pypi.org/project/Jinja2/) is a template engine written in pure Python. It provides a Django inspired non-XML syntax but supports inline expressions and an optional sandboxed environment.\n\nAffected versions of this package are vulnerable to Sandbox Escape via the `str.format_map`.\n## Remediation\nUpgrade `jinja2` to version 2.10.1 or higher.\n## References\n- [Release Notes](https://palletsprojects.com/blog/jinja-2-10-1-released)\n",
+      "disclosureTime": "2019-04-07T00:42:43Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "2.10.1"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-JINJA2-174126",
+      "identifiers": {
+        "CVE": [
+          "CVE-2019-10906"
+        ],
+        "CWE": [
+          "CWE-265"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2020-06-12T14:36:55.661596Z",
+      "moduleName": "jinja2",
+      "packageManager": "pip",
+      "packageName": "jinja2",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2019-04-07T00:42:43Z",
+      "references": [
+        {
+          "title": "Release Notes",
+          "url": "https://palletsprojects.com/blog/jinja-2-10-1-released"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,2.10.1)"
+        ]
+      },
+      "severity": "medium",
+      "severityWithCritical": "medium",
+      "title": "Sandbox Escape",
+      "from": [
+        "pip-playground@0.0.0",
+        "jinja2@2.9.6"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "jinja2",
+      "version": "2.9.6"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "alternativeIds": [],
+      "creationTime": "2020-11-10T14:17:17.451881Z",
+      "credit": [
+        "Unknown"
+      ],
+      "cvssScore": 7.5,
+      "description": "## Overview\n[rsa](https://pypi.org/project/rsa/) is a pure-Python RSA implementation.\n\nAffected versions of this package are vulnerable to Timing Attack via timed processing of valid `PKCS#1` v1.5 ciphertext.\n## Remediation\nUpgrade `rsa` to version 4.7 or higher.\n## References\n- [GitHub Issue](https://github.com/sybrenstuvel/python-rsa/issues/165)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=1889972)\n",
+      "disclosureTime": "2020-11-09T00:00:00Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "4.7"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-RSA-1038401",
+      "identifiers": {
+        "CVE": [
+          "CVE-2020-25658"
+        ],
+        "CWE": [
+          "CWE-208"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2021-01-11T10:15:14.279276Z",
+      "moduleName": "rsa",
+      "packageManager": "pip",
+      "packageName": "rsa",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2020-11-10T15:27:31Z",
+      "references": [
+        {
+          "title": "GitHub Issue",
+          "url": "https://github.com/sybrenstuvel/python-rsa/issues/165"
+        },
+        {
+          "title": "RedHat Bugzilla Bug",
+          "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1889972"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[2.0,4.7)"
+        ]
+      },
+      "severity": "high",
+      "severityWithCritical": "high",
+      "title": "Timing Attack",
+      "from": [
+        "pip-playground@0.0.0",
+        "rsa@3.4.2"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "rsa",
+      "version": "3.4.2"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
+      "alternativeIds": [],
+      "creationTime": "2020-06-02T13:50:22.620471Z",
+      "credit": [
+        "Unknown"
+      ],
+      "cvssScore": 5.6,
+      "description": "## Overview\n[rsa](https://pypi.org/project/rsa/) is a pure-Python RSA implementation.\n\nAffected versions of this package are vulnerable to Access Restriction Bypass. It does not detect `ciphertext` modification during decryption (prepended \"0\" bytes) in `PKCS1_v1_5`.\n## Remediation\nUpgrade `rsa` to version 4.1 or higher.\n## References\n- [GitHub Commit](https://github.com/sybrenstuvel/python-rsa/commit/93af6f2f89a9bf28361e67716c4240e691520f30)\n- [GitHub Issue](https://github.com/sybrenstuvel/python-rsa/issues/146)\n",
+      "disclosureTime": "2020-06-02T13:45:26Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "4.1"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-RSA-570831",
+      "identifiers": {
+        "CVE": [
+          "CVE-2020-13757"
+        ],
+        "CWE": [
+          "CWE-284"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2020-06-11T15:47:53.077618Z",
+      "moduleName": "rsa",
+      "packageManager": "pip",
+      "packageName": "rsa",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2020-06-02T14:26:13Z",
+      "references": [
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/sybrenstuvel/python-rsa/commit/93af6f2f89a9bf28361e67716c4240e691520f30"
+        },
+        {
+          "title": "GitHub Issue",
+          "url": "https://github.com/sybrenstuvel/python-rsa/issues/146"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[0,4.1)"
+        ]
+      },
+      "severity": "medium",
+      "severityWithCritical": "medium",
+      "title": "Access Restriction Bypass",
+      "from": [
+        "pip-playground@0.0.0",
+        "rsa@3.4.2"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "rsa",
+      "version": "3.4.2"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:H/UI:N/S:C/C:H/I:N/A:H",
+      "alternativeIds": [],
+      "creationTime": "2020-10-01T09:28:31.276573Z",
+      "credit": [
+        "maxpl0it"
+      ],
+      "cvssScore": 7.7,
+      "description": "## Overview\n[urllib3](https://pypi.org/project/urllib3/) is a HTTP library with thread-safe connection pooling, file post, and more.\n\nAffected versions of this package are vulnerable to HTTP Header Injection. The 'method' parameter is not filtered to prevent the injection from altering the entire request.\r\n\r\nFor example:\r\n```\r\n>>> conn = http.client.HTTPConnection(\"localhost\", 80)\r\n>>> conn.request(method=\"GET / HTTP/1.1\\r\\nHost: abc\\r\\nRemainder:\", url=\"/index.html\")\r\n```\r\n\r\nThis will result in the following request being generated:\r\n```\r\nGET / HTTP/1.1\r\nHost: abc\r\nRemainder: /index.html HTTP/1.1\r\nHost: localhost\r\nAccept-Encoding: identity\r\n```\n## Remediation\nUpgrade `urllib3` to version 1.25.9 or higher.\n## References\n- [GitHub Commit](https://github.com/urllib3/urllib3/commit/1dd69c5c5982fae7c87a620d487c2ebf7a6b436b)\n- [GitHub PR](https://github.com/urllib3/urllib3/pull/1800)\n- [Python Issue Tracker](https://bugs.python.org/issue39603)\n",
+      "disclosureTime": "2020-10-01T08:25:02Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "1.25.9"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-URLLIB3-1014645",
+      "identifiers": {
+        "CVE": [
+          "CVE-2020-26137"
+        ],
+        "CWE": [
+          "CWE-644"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2020-10-01T16:24:15.792377Z",
+      "moduleName": "urllib3",
+      "packageManager": "pip",
+      "packageName": "urllib3",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2020-10-01T16:24:15.989107Z",
+      "references": [
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/urllib3/urllib3/commit/1dd69c5c5982fae7c87a620d487c2ebf7a6b436b"
+        },
+        {
+          "title": "GitHub PR",
+          "url": "https://github.com/urllib3/urllib3/pull/1800"
+        },
+        {
+          "title": "Python Issue Tracker",
+          "url": "https://bugs.python.org/issue39603"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,1.25.9)"
+        ]
+      },
+      "severity": "high",
+      "severityWithCritical": "high",
+      "title": "HTTP Header Injection",
+      "from": [
+        "pip-playground@0.0.0",
+        "urllib3@1.21.1"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "urllib3",
+      "version": "1.21.1"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L/E:H/RL:O/RC:C",
+      "alternativeIds": [],
+      "creationTime": "2019-04-16T10:15:54.331131Z",
+      "credit": [
+        "ragdoll"
+      ],
+      "cvssScore": 7.3,
+      "description": "## Overview\n[urllib3](https://pypi.org/project/urllib3/) is a HTTP library with thread-safe connection pooling, file post, and more.\n\nAffected versions of this package are vulnerable to CRLF injection. Attacker who has the control of the requesting address parameter, could  manipulate an HTTP header and attack an internal service.\r\n\r\n## PoC\r\nby `ragdoll` and `Alvin Chang`\r\n```\r\nimport urllib3\r\n\r\npool_manager = urllib3.PoolManager()\r\n\r\nhost = \"localhost:7777?a=1 HTTP/1.1\\r\\nX-injected: header\\r\\nTEST: 123\"\r\nurl = \"http://\" + host + \":8080/test/?test=a\"\r\n\r\ntry:\r\n    info = pool_manager.request('GET', url).info()\r\n    print(info)\r\nexcept Exception:\r\n    pass\r\n\r\n# nc -l localhost 7777\r\nGET /?a=1 HTTP/1.1\r\nX-injected: header\r\nTEST: 123:8080/test/?test=a HTTP/1.1\r\nHost: localhost:7777\r\nAccept-Encoding: identity\r\n```\r\nThe nc server will display the HTTP request with a manipulated header content: `X-injected:header`, indicating a successful injection of the HTTP header.\n## Remediation\nUpgrade `urllib3` to version 1.24.3 or higher.\n## References\n- [GitHub Commit](https://github.com/urllib3/urllib3/commit/5d523706c7b03f947dc50a7e783758a2bfff0532)\n- [GitHub Issue](https://github.com/urllib3/urllib3/issues/1553)\n- [GitHub PR](https://github.com/urllib3/urllib3/pull/1487)\n- [GitHub PR](https://github.com/urllib3/urllib3/pull/1531)\n- [Python Bug Report](https://bugs.python.org/issue36276)\n",
+      "disclosureTime": "2019-04-15T16:12:12Z",
+      "exploit": "High",
+      "fixedIn": [
+        "1.24.3"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-URLLIB3-174323",
+      "identifiers": {
+        "CVE": [
+          "CVE-2019-11236"
+        ],
+        "CWE": [
+          "CWE-93"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2020-06-12T14:36:54.748350Z",
+      "moduleName": "urllib3",
+      "packageManager": "pip",
+      "packageName": "urllib3",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2019-04-18T16:12:12Z",
+      "references": [
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/urllib3/urllib3/commit/5d523706c7b03f947dc50a7e783758a2bfff0532"
+        },
+        {
+          "title": "GitHub Issue",
+          "url": "https://github.com/urllib3/urllib3/issues/1553"
+        },
+        {
+          "title": "GitHub PR",
+          "url": "https://github.com/urllib3/urllib3/pull/1487"
+        },
+        {
+          "title": "GitHub PR",
+          "url": "https://github.com/urllib3/urllib3/pull/1531"
+        },
+        {
+          "title": "Python Bug Report",
+          "url": "https://bugs.python.org/issue36276"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,1.24.3)"
+        ]
+      },
+      "severity": "high",
+      "severityWithCritical": "high",
+      "title": "CRLF injection",
+      "from": [
+        "pip-playground@0.0.0",
+        "urllib3@1.21.1"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "urllib3",
+      "version": "1.21.1"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+      "alternativeIds": [],
+      "creationTime": "2019-04-21T12:54:36.347110Z",
+      "credit": [
+        "Unknown"
+      ],
+      "cvssScore": 7.5,
+      "description": "## Overview\n[urllib3](https://pypi.org/project/urllib3/) is a HTTP library with thread-safe connection pooling, file post, and more.\n\nAffected versions of this package are vulnerable to Improper Certificate Validation. It mishandles certain cases where the desired set of CA certificates is different from the OS store of CA certificates. This can result in SSL connections succeeding in situations where it should have failed.\n## Remediation\nUpgrade `urllib3` to version 1.24.2 or higher.\n## References\n- [GitHub Comparison](https://github.com/urllib3/urllib3/compare/a6ec68a...1efadf4)\n",
+      "disclosureTime": "2019-04-18T22:07:15Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "1.24.2"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-URLLIB3-174464",
+      "identifiers": {
+        "CVE": [
+          "CVE-2019-11324"
+        ],
+        "CWE": [
+          "CWE-295"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2020-06-12T14:37:00.776950Z",
+      "moduleName": "urllib3",
+      "packageManager": "pip",
+      "packageName": "urllib3",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2019-04-18T22:07:15Z",
+      "references": [
+        {
+          "title": "GitHub Comparison",
+          "url": "https://github.com/urllib3/urllib3/compare/a6ec68a...1efadf4"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,1.24.2)"
+        ]
+      },
+      "severity": "high",
+      "severityWithCritical": "high",
+      "title": "Improper Certificate Validation",
+      "from": [
+        "pip-playground@0.0.0",
+        "urllib3@1.21.1"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "urllib3",
+      "version": "1.21.1"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "alternativeIds": [],
+      "creationTime": "2018-12-12T12:41:34.558379Z",
+      "credit": [
+        "Unknown"
+      ],
+      "cvssScore": 5.9,
+      "description": "## Overview\n \n[urllib3](https://pypi.org/project/urllib3/) is a HTTP library with thread-safe connection pooling, file post, and more.\n\n\nAffected versions of this package are vulnerable to Authentication Bypass.\nIt did remove the Authorization HTTP header when following a cross-origin redirect. This can allow for credentials in the Authorization header to be exposed to unintended hosts or transmitted in cleartext.\n\n## Remediation\n\nUpgrade urllib3 to version 1.23 or higher.\n\n\n## References\n\n- [GitHub Issue](https://github.com/urllib3/urllib3/issues/1316)\n\n- [GitHub PR](https://github.com/urllib3/urllib3/pull/1346)\n\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=1649153)\n",
+      "disclosureTime": "2018-12-11T18:20:29Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "1.23"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-URLLIB3-72681",
+      "identifiers": {
+        "CVE": [
+          "CVE-2018-20060"
+        ],
+        "CWE": [
+          "CWE-288"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2018-12-12T17:28:18.277222Z",
+      "moduleName": "urllib3",
+      "packageManager": "pip",
+      "packageName": "urllib3",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2018-12-12T17:28:18.256660Z",
+      "references": [
+        {
+          "title": "GitHub Issue",
+          "url": "https://github.com/urllib3/urllib3/issues/1316"
+        },
+        {
+          "title": "GitHub PR",
+          "url": "https://github.com/urllib3/urllib3/pull/1346"
+        },
+        {
+          "title": "RedHat Bugzilla Bug",
+          "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1649153"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,1.23)"
+        ]
+      },
+      "severity": "medium",
+      "severityWithCritical": "medium",
+      "title": "Authentication Bypass",
+      "from": [
+        "pip-playground@0.0.0",
+        "urllib3@1.21.1"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "urllib3",
+      "version": "1.21.1"
+    }
+  ],
+  "ok": false,
+  "dependencyCount": 9,
+  "org": "main-dept",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.19.0\nignore: {}\npatch: {}\n",
+  "isPrivate": true,
+  "licensesPolicy": {
+    "severities": {},
+    "orgLicenseRules": {
+      "AGPL-3.0": {
+        "licenseType": "AGPL-3.0",
+        "severity": "high",
+        "instructions": "This type of license is only allowed by following process. http://gghghgh "
+      },
+      "Artistic-1.0": {
+        "licenseType": "Artistic-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "Artistic-2.0": {
+        "licenseType": "Artistic-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "CDDL-1.0": {
+        "licenseType": "CDDL-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "CPOL-1.02": {
+        "licenseType": "CPOL-1.02",
+        "severity": "high",
+        "instructions": ""
+      },
+      "EPL-1.0": {
+        "licenseType": "EPL-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "GPL-2.0": {
+        "licenseType": "GPL-2.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "GPL-3.0": {
+        "licenseType": "GPL-3.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "LGPL-2.0": {
+        "licenseType": "LGPL-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "LGPL-2.1": {
+        "licenseType": "LGPL-2.1",
+        "severity": "high",
+        "instructions": "Legal says can't be added to PCI projects."
+      },
+      "LGPL-3.0": {
+        "licenseType": "LGPL-3.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MPL-1.1": {
+        "licenseType": "MPL-1.1",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MPL-2.0": {
+        "licenseType": "MPL-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MS-RL": {
+        "licenseType": "MS-RL",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "SimPL-2.0": {
+        "licenseType": "SimPL-2.0",
+        "severity": "high",
+        "instructions": ""
+      }
+    }
+  },
+  "packageManager": "pip",
+  "projectId": "e4fec4a8-9243-4da7-8767-2d68fa680f5f",
+  "ignoreSettings": null,
+  "summary": "16 vulnerable dependency paths",
+  "remediation": {
+    "unresolved": [
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N",
+        "alternativeIds": [],
+        "creationTime": "2021-02-01T13:11:56.558734Z",
+        "credit": [
+          "Wang Baohua"
+        ],
+        "cvssScore": 3.1,
+        "description": "## Overview\n[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\n\nAffected versions of this package are vulnerable to Directory Traversal via the `django.utils.archive.extract()` function, which is used by `startapp --template` and `startproject --template`. This can happen via an archive with absolute paths or relative paths with dot segments.\n\n## Details\n\nA Directory Traversal attack (also known as path traversal) aims to access files and directories that are stored outside the intended folder. By manipulating files with \"dot-dot-slash (../)\" sequences and its variations, or by using absolute file paths, it may be possible to access arbitrary files and directories stored on file system, including application source code, configuration, and other critical system files.\n\nDirectory Traversal vulnerabilities can be generally divided into two types:\n\n- **Information Disclosure**: Allows the attacker to gain information about the folder structure or read the contents of sensitive files on the system.\n\n`st` is a module for serving static files on web pages, and contains a [vulnerability of this type](https://snyk.io/vuln/npm:st:20140206). In our example, we will serve files from the `public` route.\n\nIf an attacker requests the following URL from our server, it will in turn leak the sensitive private key of the root user.\n\n```\ncurl http://localhost:8080/public/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/root/.ssh/id_rsa\n```\n**Note** `%2e` is the URL encoded version of `.` (dot).\n\n- **Writing arbitrary files**: Allows the attacker to create or replace existing files. This type of vulnerability is also known as `Zip-Slip`. \n\nOne way to achieve this is by using a malicious `zip` archive that holds path traversal filenames. When each filename in the zip archive gets concatenated to the target extraction folder, without validation, the final path ends up outside of the target folder. If an executable or a configuration file is overwritten with a file containing malicious code, the problem can turn into an arbitrary code execution issue quite easily.\n\nThe following is an example of a `zip` archive with one benign file and one malicious file. Extracting the malicious file will result in traversing out of the target folder, ending up in `/root/.ssh/` overwriting the `authorized_keys` file:\n\n```\n2018-04-15 22:04:29 .....           19           19  good.txt\n2018-04-15 22:04:42 .....           20           20  ../../../../../../root/.ssh/authorized_keys\n```\n\n## Remediation\nUpgrade `django` to version 2.2.18, 3.0.12, 3.1.6 or higher.\n## References\n- [Django Advisory](https://www.djangoproject.com/weblog/2021/feb/01/security-releases/)\n- [GitHub Commit](https://github.com/django/django/commit/05413afa8c18cdb978fcdf470e09f7a12b234a23)\n",
+        "disclosureTime": "2021-02-01T12:56:31Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "2.2.18",
+          "3.0.12",
+          "3.1.6"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-DJANGO-1066259",
+        "identifiers": {
+          "CVE": [
+            "CVE-2021-3281"
+          ],
+          "CWE": [
+            "CWE-22"
+          ],
+          "GHSA": [
+            "GHSA-fvgf-6h6h-3322"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2021-02-01T15:11:08.053324Z",
+        "moduleName": "django",
+        "packageManager": "pip",
+        "packageName": "django",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2021-02-01T15:11:08.261009Z",
+        "references": [
+          {
+            "title": "Django Advisory",
+            "url": "https://www.djangoproject.com/weblog/2021/feb/01/security-releases/"
+          },
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/django/django/commit/05413afa8c18cdb978fcdf470e09f7a12b234a23"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[1.4,2.2.18)",
+            "[3.0a1,3.0.12)",
+            "[3.1a1,3.1.6)"
+          ]
+        },
+        "severity": "low",
+        "severityWithCritical": "low",
+        "title": "Directory Traversal",
+        "from": [
+          "pip-playground@0.0.0",
+          "django@1.11.27"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "django",
+        "version": "1.11.27"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N",
+        "alternativeIds": [],
+        "creationTime": "2021-05-04T12:51:50.753891Z",
+        "credit": [
+          "Jasu Viding"
+        ],
+        "cvssScore": 3.3,
+        "description": "## Overview\n[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\n\nAffected versions of this package are vulnerable to Directory Traversal. `MultiPartParser`, `UploadedFile`, and `FieldFile` allow directory-traversal via uploaded files with suitably crafted file names.\n\n## Details\n\nA Directory Traversal attack (also known as path traversal) aims to access files and directories that are stored outside the intended folder. By manipulating files with \"dot-dot-slash (../)\" sequences and its variations, or by using absolute file paths, it may be possible to access arbitrary files and directories stored on file system, including application source code, configuration, and other critical system files.\n\nDirectory Traversal vulnerabilities can be generally divided into two types:\n\n- **Information Disclosure**: Allows the attacker to gain information about the folder structure or read the contents of sensitive files on the system.\n\n`st` is a module for serving static files on web pages, and contains a [vulnerability of this type](https://snyk.io/vuln/npm:st:20140206). In our example, we will serve files from the `public` route.\n\nIf an attacker requests the following URL from our server, it will in turn leak the sensitive private key of the root user.\n\n```\ncurl http://localhost:8080/public/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/root/.ssh/id_rsa\n```\n**Note** `%2e` is the URL encoded version of `.` (dot).\n\n- **Writing arbitrary files**: Allows the attacker to create or replace existing files. This type of vulnerability is also known as `Zip-Slip`. \n\nOne way to achieve this is by using a malicious `zip` archive that holds path traversal filenames. When each filename in the zip archive gets concatenated to the target extraction folder, without validation, the final path ends up outside of the target folder. If an executable or a configuration file is overwritten with a file containing malicious code, the problem can turn into an arbitrary code execution issue quite easily.\n\nThe following is an example of a `zip` archive with one benign file and one malicious file. Extracting the malicious file will result in traversing out of the target folder, ending up in `/root/.ssh/` overwriting the `authorized_keys` file:\n\n```\n2018-04-15 22:04:29 .....           19           19  good.txt\n2018-04-15 22:04:42 .....           20           20  ../../../../../../root/.ssh/authorized_keys\n```\n\n## Remediation\nUpgrade `django` to version 2.2.21, 3.1.9, 3.2.1 or higher.\n## References\n- [Django Advisory](https://www.djangoproject.com/weblog/2021/may/04/security-releases/)\n- [GitHub Commit](https://github.com/django/django/commit/c98f446c188596d4ba6de71d1b77b4a6c5c2a007)\n",
+        "disclosureTime": "2021-05-04T12:44:10Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "2.2.21",
+          "3.1.9",
+          "3.2.1"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-DJANGO-1279042",
+        "identifiers": {
+          "CVE": [
+            "CVE-2021-31542"
+          ],
+          "CWE": [
+            "CWE-22"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2021-05-04T14:45:09.894750Z",
+        "moduleName": "django",
+        "packageManager": "pip",
+        "packageName": "django",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2021-05-04T14:45:10.137628Z",
+        "references": [
+          {
+            "title": "Django Advisory",
+            "url": "https://www.djangoproject.com/weblog/2021/may/04/security-releases/"
+          },
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/django/django/commit/c98f446c188596d4ba6de71d1b77b4a6c5c2a007"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[, 2.2.21)",
+            "[3.0, 3.1.9)",
+            "[3.2, 3.2.1)"
+          ]
+        },
+        "severity": "low",
+        "severityWithCritical": "low",
+        "title": "Directory Traversal",
+        "from": [
+          "pip-playground@0.0.0",
+          "django@1.11.27"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "django",
+        "version": "1.11.27"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        "alternativeIds": [],
+        "creationTime": "2021-05-06T14:52:58.420987Z",
+        "credit": [
+          "Unknown"
+        ],
+        "cvssScore": 7.3,
+        "description": "## Overview\n[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\n\nAffected versions of this package are vulnerable to HTTP Header Injection. In Python 3.9.5+ urllib.parse() automatically removes ASCII newlines and tabs from URLs. Unfortunately it created an issue in the URLValidator. URLValidator uses `urllib.urlsplit()` and `urllib.urlunsplit()` for creating a URL variant with Punycode which no longer contains newlines and tabs in Python 3.9.5+. As a consequence, the regular expression matched the URL (without unsafe characters) and the source value (with unsafe characters) was considered valid.\r\n\r\nThis issue was introduced by the [bpo-43882](https://bugs.python.org/issue43882) fix.\n## Remediation\nUpgrade `django` to version 3.2.2, 3.1.10, 2.2.22 or higher.\n## References\n- [Django Security Releases](https://www.djangoproject.com/weblog/2021/may/06/security-releases/)\n- [GitHub Commit](https://github.com/django/django/commit/e1e81aa1c4427411e3c68facdd761229ffea6f6f)\n- [GitHub PR](https://github.com/django/django/pull/14360)\n- [Mail Archive](https://www.mail-archive.com/debian-bugs-dist@lists.debian.org/msg1804086.html)\n",
+        "disclosureTime": "2021-05-06T14:44:15Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "2.2.22",
+          "3.1.10",
+          "3.2.2"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-DJANGO-1290072",
+        "identifiers": {
+          "CVE": [
+            "CVE-2021-32052"
+          ],
+          "CWE": [
+            "CWE-644"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2021-05-06T15:41:43.922301Z",
+        "moduleName": "django",
+        "packageManager": "pip",
+        "packageName": "django",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2021-05-06T15:41:44.175836Z",
+        "references": [
+          {
+            "title": "Django Security Releases",
+            "url": "https://www.djangoproject.com/weblog/2021/may/06/security-releases/"
+          },
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/django/django/commit/e1e81aa1c4427411e3c68facdd761229ffea6f6f"
+          },
+          {
+            "title": "GitHub PR",
+            "url": "https://github.com/django/django/pull/14360"
+          },
+          {
+            "title": "Mail Archive",
+            "url": "https://www.mail-archive.com/debian-bugs-dist@lists.debian.org/msg1804086.html"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[3.2,3.2.2)",
+            "[3.0,3.1.10)",
+            "[,2.2.22)"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "high",
+        "title": "HTTP Header Injection",
+        "from": [
+          "pip-playground@0.0.0",
+          "django@1.11.27"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "django",
+        "version": "1.11.27"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L/E:P/RL:O/RC:R",
+        "alternativeIds": [],
+        "creationTime": "2020-02-03T13:39:03.460147Z",
+        "credit": [
+          "Simon Charette"
+        ],
+        "cvssScore": 7.3,
+        "description": "## Overview\n[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\n\nAffected versions of this package are vulnerable to SQL Injection. If untrusted data is used as a `StringAgg` delimiter (e.g., in Django applications that offer downloads of data as a series of rows with a user-specified column delimiter) by passing a suitably crafted delimiter to a `contrib.postgres.aggregates.StringAgg` instance, it is possible to break escaping and inject malicious SQL.\n## Remediation\nUpgrade `django` to version 3.0.3, 2.2.10, 1.11.28 or higher.\n## References\n- [Django Google Group Report](https://groups.google.com/forum/#!topic/django-announce/X45S86X5bZI)\n- [Django Security Release](https://www.djangoproject.com/weblog/2020/feb/03/security-releases/)\n- [GitHub PoC](https://github.com/secoba/DjVul_StringAgg)\n",
+        "disclosureTime": "2020-02-03T13:20:48Z",
+        "exploit": "Proof of Concept",
+        "fixedIn": [
+          "1.11.28",
+          "2.2.10",
+          "3.0.3"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-DJANGO-543998",
+        "identifiers": {
+          "CVE": [
+            "CVE-2020-7471"
+          ],
+          "CWE": [
+            "CWE-89"
+          ],
+          "GHSA": [
+            "GHSA-hmr4-m2h5-33qx"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2020-06-12T14:37:05.244432Z",
+        "moduleName": "django",
+        "packageManager": "pip",
+        "packageName": "django",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2020-02-03T13:20:48Z",
+        "references": [
+          {
+            "title": "Django Google Group Report",
+            "url": "https://groups.google.com/forum/%23%21topic/django-announce/X45S86X5bZI"
+          },
+          {
+            "title": "Django Security Release",
+            "url": "https://www.djangoproject.com/weblog/2020/feb/03/security-releases/"
+          },
+          {
+            "title": "GitHub PoC",
+            "url": "https://github.com/secoba/DjVul_StringAgg"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[3.0,3.0.3)",
+            "[2.2,2.2.10)",
+            "[1.11,1.11.28)"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "high",
+        "title": "SQL Injection",
+        "from": [
+          "pip-playground@0.0.0",
+          "django@1.11.27"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "django",
+        "version": "1.11.27"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:L/A:L",
+        "alternativeIds": [],
+        "creationTime": "2020-03-05T10:22:44.844667Z",
+        "credit": [
+          "Norbert Szetei of Doyensec"
+        ],
+        "cvssScore": 7.6,
+        "description": "## Overview\n[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\n\nAffected versions of this package are vulnerable to SQL Injection via \"tolerance\" parameter in GIS functions and aggregates on Oracle.\n## Remediation\nUpgrade `django` to version 3.0.4, 2.2.11, 1.11.29 or higher.\n## References\n- [Django Security Release](https://www.djangoproject.com/weblog/2020/mar/04/security-releases/)\n- [GitHub Commit #1](https://github.com/django/django/commit/02d97f3c9a88adc890047996e5606180bd1c6166)\n- [GitHub Commit #2](https://github.com/django/django/commit/26a5cf834526e291db00385dd33d319b8271fc4c)\n- [GitHub Commit #3](https://github.com/django/django/commit/fe886a3b58a93cfbe8864b485f93cb6d426cd1f2)\n- [RedHat Bugzilla](https://bugzilla.redhat.com/show_bug.cgi?id=1810088)\n",
+        "disclosureTime": "2020-03-03T10:20:30Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "1.11.29",
+          "2.2.11",
+          "3.0.4"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-DJANGO-559326",
+        "identifiers": {
+          "CVE": [
+            "CVE-2020-9402"
+          ],
+          "CWE": [
+            "CWE-89"
+          ],
+          "GHSA": [
+            "GHSA-3gh2-xw74-jmcw"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2020-06-12T14:37:00.802569Z",
+        "moduleName": "django",
+        "packageManager": "pip",
+        "packageName": "django",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2020-03-05T10:20:29Z",
+        "references": [
+          {
+            "title": "Django Security Release",
+            "url": "https://www.djangoproject.com/weblog/2020/mar/04/security-releases/"
+          },
+          {
+            "title": "GitHub Commit #1",
+            "url": "https://github.com/django/django/commit/02d97f3c9a88adc890047996e5606180bd1c6166"
+          },
+          {
+            "title": "GitHub Commit #2",
+            "url": "https://github.com/django/django/commit/26a5cf834526e291db00385dd33d319b8271fc4c"
+          },
+          {
+            "title": "GitHub Commit #3",
+            "url": "https://github.com/django/django/commit/fe886a3b58a93cfbe8864b485f93cb6d426cd1f2"
+          },
+          {
+            "title": "RedHat Bugzilla",
+            "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1810088"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[3.0.0,3.0.4)",
+            "[2.2.0,2.2.11)",
+            "[,1.11.29)"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "high",
+        "title": "SQL Injection",
+        "from": [
+          "pip-playground@0.0.0",
+          "django@1.11.27"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "django",
+        "version": "1.11.27"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "alternativeIds": [],
+        "creationTime": "2021-01-28T07:59:07.176165Z",
+        "credit": [
+          "Ben Caller"
+        ],
+        "cvssScore": 7.5,
+        "description": "## Overview\n[httplib2](https://github.com/httplib2/httplib2) is a small HTTP client library for Python.\n\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS). A malicious server which responds with long series of `\\xa0` characters in the `www-authenticate` header, may cause a CPU burn while parsing the header of the `httplib2` client accessing server.\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its original and legitimate users. There are many types of DoS attacks, ranging from trying to clog the network pipes to the system by generating a large volume of traffic from many machines (a Distributed Denial of Service - DDoS - attack) to sending crafted requests that cause a system to crash or take a disproportional amount of time to process.\n\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Regular expressions are incredibly powerful, but they aren't very intuitive and can ultimately end up making it easy for attackers to take your site down.\n\nLet’s take the following regular expression as an example:\n```js\nregex = /A(B|C+)+D/\n```\n\nThis regular expression accomplishes the following:\n- `A` The string must start with the letter 'A'\n- `(B|C+)+` The string must then follow the letter A with either the letter 'B' or some number of occurrences of the letter 'C' (the `+` matches one or more times). The `+` at the end of this section states that we can look for one or more matches of this section.\n- `D` Finally, we ensure this section of the string ends with a 'D'\n\nThe expression would match inputs such as `ABBD`, `ABCCCCD`, `ABCBCCCD` and `ACCCCCD`\n\nIt most cases, it doesn't take very long for a regex engine to find a match:\n\n```bash\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCD\")'\n0.04s user 0.01s system 95% cpu 0.052 total\n\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCX\")'\n1.79s user 0.02s system 99% cpu 1.812 total\n```\n\nThe entire process of testing it against a 30 characters long string takes around ~52ms. But when given an invalid string, it takes nearly two seconds to complete the test, over ten times as long as it took to test a valid string. The dramatic difference is due to the way regular expressions get evaluated.\n\nMost Regex engines will work very similarly (with minor differences). The engine will match the first possible way to accept the current character and proceed to the next one. If it then fails to match the next one, it will backtrack and see if there was another way to digest the previous character. If it goes too far down the rabbit hole only to find out the string doesn’t match in the end, and if many characters have multiple valid regex paths, the number of backtracking steps can become very large, resulting in what is known as _catastrophic backtracking_.\n\nLet's look at how our expression runs into this problem, using a shorter string: \"ACCCX\". While it seems fairly straightforward, there are still four different ways that the engine could match those three C's:\n1. CCC\n2. CC+C\n3. C+CC\n4. C+C+C.\n\nThe engine has to try each of those combinations to see if any of them potentially match against the expression. When you combine that with the other steps the engine must take, we can use [RegEx 101 debugger](https://regex101.com/debugger) to see the engine has to take a total of 38 steps before it can determine the string doesn't match.\n\nFrom there, the number of steps the engine must use to validate a string just continues to grow.\n\n| String | Number of C's | Number of steps |\n| -------|-------------:| -----:|\n| ACCCX | 3 | 38\n| ACCCCX | 4 | 71\n| ACCCCCX | 5 | 136\n| ACCCCCCCCCCCCCCX | 14 | 65,553\n\n\nBy the time the string includes 14 C's, the engine has to take over 65,000 steps just to see if the string is valid. These extreme situations can cause them to work very slowly (exponentially related to input size, as shown above), allowing an attacker to exploit this and can cause the service to excessively consume CPU, resulting in a Denial of Service.\n\n## Remediation\nUpgrade `httplib2` to version 0.19.0 or higher.\n## References\n- [GitHub Commit](https://github.com/httplib2/httplib2/commit/bd9ee252c8f099608019709e22c0d705e98d26bc)\n",
+        "disclosureTime": "2021-01-28T07:58:31Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "0.19.0"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-HTTPLIB2-1065795",
+        "identifiers": {
+          "CVE": [
+            "CVE-2021-21240"
+          ],
+          "CWE": [
+            "CWE-400"
+          ],
+          "GHSA": [
+            "GHSA-93xj-8mrv-444m"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2021-02-09T16:34:49.697202Z",
+        "moduleName": "httplib2",
+        "packageManager": "pip",
+        "packageName": "httplib2",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2021-02-09T16:34:49.902797Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/httplib2/httplib2/commit/bd9ee252c8f099608019709e22c0d705e98d26bc"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[0,0.19.0)"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "high",
+        "title": "Regular Expression Denial of Service (ReDoS)",
+        "from": [
+          "pip-playground@0.0.0",
+          "oauth2@1.9.0.post1",
+          "httplib2@0.10.3"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "httplib2",
+        "version": "0.10.3"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:N/I:H/A:N",
+        "alternativeIds": [],
+        "creationTime": "2020-05-20T17:24:45.182255Z",
+        "credit": [
+          "Recar"
+        ],
+        "cvssScore": 6.8,
+        "description": "## Overview\n[httplib2](https://github.com/httplib2/httplib2) is a small HTTP client library for Python.\n\nAffected versions of this package are vulnerable to CRLF Injection. An attacker controlling an unescaped part of uri for `httplib2.Http.request()` could change request headers and body, send additional hidden requests to same server. This vulnerability impacts software that uses` httplib2` with `uri` constructed by string concatenation, as opposed to proper `urllib` building with escaping.\n## Remediation\nUpgrade `httplib2` to version 0.18.0 or higher.\n## References\n- [GitHub Commit](https://github.com/httplib2/httplib2/commit/a1457cc31f3206cf691d11d2bf34e98865873e9e)\n",
+        "disclosureTime": "2020-05-20T17:21:25Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "0.18.0"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-HTTPLIB2-569758",
+        "identifiers": {
+          "CVE": [
+            "CVE-2020-11078"
+          ],
+          "CWE": [
+            "CWE-93"
+          ],
+          "GHSA": [
+            "GHSA-gg84-qgv9-w4pq"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2020-05-20T17:26:43.364751Z",
+        "moduleName": "httplib2",
+        "packageManager": "pip",
+        "packageName": "httplib2",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2020-05-20T17:26:43.630546Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/httplib2/httplib2/commit/a1457cc31f3206cf691d11d2bf34e98865873e9e"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[,0.18.0)"
+          ]
+        },
+        "severity": "medium",
+        "severityWithCritical": "medium",
+        "title": "CRLF Injection",
+        "from": [
+          "pip-playground@0.0.0",
+          "oauth2@1.9.0.post1",
+          "httplib2@0.10.3"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "httplib2",
+        "version": "0.10.3"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H",
+        "alternativeIds": [],
+        "creationTime": "2020-06-01T10:05:01.471801Z",
+        "credit": [
+          "Ciyfly"
+        ],
+        "cvssScore": 8.2,
+        "description": "## Overview\n[httplib2](https://github.com/httplib2/httplib2) is a small HTTP client library for Python.\n\nAffected versions of this package are vulnerable to CRLF Injection. It allows `%xx` quote of space, CR, LF characters in the URI.\n## Remediation\nUpgrade `httplib2` to version 0.18.0 or higher.\n## References\n- [GitHub Commit](https://github.com/httplib2/httplib2/commit/a1457cc31f3206cf691d11d2bf34e98865873e9e)\n",
+        "disclosureTime": "2020-05-20T09:59:00Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "0.18.0"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-HTTPLIB2-570767",
+        "identifiers": {
+          "CVE": [],
+          "CWE": [
+            "CWE-93"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2020-06-01T15:51:52.311569Z",
+        "moduleName": "httplib2",
+        "packageManager": "pip",
+        "packageName": "httplib2",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2020-06-01T15:51:52.521847Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/httplib2/httplib2/commit/a1457cc31f3206cf691d11d2bf34e98865873e9e"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[,0.18.0)"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "high",
+        "title": "CRLF Injection",
+        "from": [
+          "pip-playground@0.0.0",
+          "oauth2@1.9.0.post1",
+          "httplib2@0.10.3"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "httplib2",
+        "version": "0.10.3"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L/E:P",
+        "alternativeIds": [],
+        "creationTime": "2020-09-25T17:30:26.286074Z",
+        "credit": [
+          "Yeting Li"
+        ],
+        "cvssScore": 5.3,
+        "description": "## Overview\n[jinja2](https://pypi.org/project/Jinja2/) is a template engine written in pure Python. It provides a Django inspired non-XML syntax but supports inline expressions and an optional sandboxed environment.\n\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS). The ReDoS vulnerability is mainly due to the `_punctuation_re regex` operator and its use of multiple wildcards. The last wildcard is the most exploitable as it searches for trailing punctuation.\r\n\r\nThis issue can be mitigated by using Markdown to format user content instead of the urlize filter, or by implementing request timeouts or limiting process memory.\r\n\r\n### PoC by Yeting Li\r\n```\r\nfrom jinja2.utils import urlize\r\nfrom time import perf_counter\r\n\r\nfor i in range(3):\r\n    text = \"abc@\" + \".\" * (i+1)*5000 + \"!\"\r\n    LEN = len(text)\r\n    BEGIN = perf_counter()\r\n    urlize(text)\r\n    DURATION = perf_counter() - BEGIN\r\n    print(f\"{LEN}: took {DURATION} seconds!\")\r\n```\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its original and legitimate users. There are many types of DoS attacks, ranging from trying to clog the network pipes to the system by generating a large volume of traffic from many machines (a Distributed Denial of Service - DDoS - attack) to sending crafted requests that cause a system to crash or take a disproportional amount of time to process.\n\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Regular expressions are incredibly powerful, but they aren't very intuitive and can ultimately end up making it easy for attackers to take your site down.\n\nLet’s take the following regular expression as an example:\n```js\nregex = /A(B|C+)+D/\n```\n\nThis regular expression accomplishes the following:\n- `A` The string must start with the letter 'A'\n- `(B|C+)+` The string must then follow the letter A with either the letter 'B' or some number of occurrences of the letter 'C' (the `+` matches one or more times). The `+` at the end of this section states that we can look for one or more matches of this section.\n- `D` Finally, we ensure this section of the string ends with a 'D'\n\nThe expression would match inputs such as `ABBD`, `ABCCCCD`, `ABCBCCCD` and `ACCCCCD`\n\nIt most cases, it doesn't take very long for a regex engine to find a match:\n\n```bash\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCD\")'\n0.04s user 0.01s system 95% cpu 0.052 total\n\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCX\")'\n1.79s user 0.02s system 99% cpu 1.812 total\n```\n\nThe entire process of testing it against a 30 characters long string takes around ~52ms. But when given an invalid string, it takes nearly two seconds to complete the test, over ten times as long as it took to test a valid string. The dramatic difference is due to the way regular expressions get evaluated.\n\nMost Regex engines will work very similarly (with minor differences). The engine will match the first possible way to accept the current character and proceed to the next one. If it then fails to match the next one, it will backtrack and see if there was another way to digest the previous character. If it goes too far down the rabbit hole only to find out the string doesn’t match in the end, and if many characters have multiple valid regex paths, the number of backtracking steps can become very large, resulting in what is known as _catastrophic backtracking_.\n\nLet's look at how our expression runs into this problem, using a shorter string: \"ACCCX\". While it seems fairly straightforward, there are still four different ways that the engine could match those three C's:\n1. CCC\n2. CC+C\n3. C+CC\n4. C+C+C.\n\nThe engine has to try each of those combinations to see if any of them potentially match against the expression. When you combine that with the other steps the engine must take, we can use [RegEx 101 debugger](https://regex101.com/debugger) to see the engine has to take a total of 38 steps before it can determine the string doesn't match.\n\nFrom there, the number of steps the engine must use to validate a string just continues to grow.\n\n| String | Number of C's | Number of steps |\n| -------|-------------:| -----:|\n| ACCCX | 3 | 38\n| ACCCCX | 4 | 71\n| ACCCCCX | 5 | 136\n| ACCCCCCCCCCCCCCX | 14 | 65,553\n\n\nBy the time the string includes 14 C's, the engine has to take over 65,000 steps just to see if the string is valid. These extreme situations can cause them to work very slowly (exponentially related to input size, as shown above), allowing an attacker to exploit this and can cause the service to excessively consume CPU, resulting in a Denial of Service.\n\n## Remediation\nUpgrade `jinja2` to version 2.11.3 or higher.\n## References\n- [GitHub Additional Information](https://github.com/pallets/jinja/blob/ab81fd9c277900c85da0c322a2ff9d68a235b2e6/src/jinja2/utils.py#L20)\n- [GitHub PR](https://github.com/pallets/jinja/pull/1343)\n",
+        "disclosureTime": "2020-09-25T17:29:19Z",
+        "exploit": "Proof of Concept",
+        "fixedIn": [
+          "2.11.3"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-JINJA2-1012994",
+        "identifiers": {
+          "CVE": [
+            "CVE-2020-28493"
+          ],
+          "CWE": [
+            "CWE-400"
+          ],
+          "GHSA": [
+            "GHSA-g3rq-g295-4j3m"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2021-02-01T19:52:16.877030Z",
+        "moduleName": "jinja2",
+        "packageManager": "pip",
+        "packageName": "jinja2",
+        "patches": [],
+        "proprietary": true,
+        "publicationTime": "2021-02-01T19:52:17Z",
+        "references": [
+          {
+            "title": "GitHub Additional Information",
+            "url": "https://github.com/pallets/jinja/blob/ab81fd9c277900c85da0c322a2ff9d68a235b2e6/src/jinja2/utils.py%23L20"
+          },
+          {
+            "title": "GitHub PR",
+            "url": "https://github.com/pallets/jinja/pull/1343"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[,2.11.3)"
+          ]
+        },
+        "severity": "medium",
+        "severityWithCritical": "medium",
+        "title": "Regular Expression Denial of Service (ReDoS)",
+        "from": [
+          "pip-playground@0.0.0",
+          "jinja2@2.9.6"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "jinja2",
+        "version": "2.9.6"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:L/I:L/A:L/RL:O",
+        "alternativeIds": [],
+        "creationTime": "2019-04-07T10:24:16.310959Z",
+        "credit": [
+          "Unknown"
+        ],
+        "cvssScore": 6,
+        "description": "## Overview\n[jinja2](https://pypi.org/project/Jinja2/) is a template engine written in pure Python. It provides a Django inspired non-XML syntax but supports inline expressions and an optional sandboxed environment.\n\nAffected versions of this package are vulnerable to Sandbox Escape via the `str.format_map`.\n## Remediation\nUpgrade `jinja2` to version 2.10.1 or higher.\n## References\n- [Release Notes](https://palletsprojects.com/blog/jinja-2-10-1-released)\n",
+        "disclosureTime": "2019-04-07T00:42:43Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "2.10.1"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-JINJA2-174126",
+        "identifiers": {
+          "CVE": [
+            "CVE-2019-10906"
+          ],
+          "CWE": [
+            "CWE-265"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2020-06-12T14:36:55.661596Z",
+        "moduleName": "jinja2",
+        "packageManager": "pip",
+        "packageName": "jinja2",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2019-04-07T00:42:43Z",
+        "references": [
+          {
+            "title": "Release Notes",
+            "url": "https://palletsprojects.com/blog/jinja-2-10-1-released"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[,2.10.1)"
+          ]
+        },
+        "severity": "medium",
+        "severityWithCritical": "medium",
+        "title": "Sandbox Escape",
+        "from": [
+          "pip-playground@0.0.0",
+          "jinja2@2.9.6"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "jinja2",
+        "version": "2.9.6"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+        "alternativeIds": [],
+        "creationTime": "2020-11-10T14:17:17.451881Z",
+        "credit": [
+          "Unknown"
+        ],
+        "cvssScore": 7.5,
+        "description": "## Overview\n[rsa](https://pypi.org/project/rsa/) is a pure-Python RSA implementation.\n\nAffected versions of this package are vulnerable to Timing Attack via timed processing of valid `PKCS#1` v1.5 ciphertext.\n## Remediation\nUpgrade `rsa` to version 4.7 or higher.\n## References\n- [GitHub Issue](https://github.com/sybrenstuvel/python-rsa/issues/165)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=1889972)\n",
+        "disclosureTime": "2020-11-09T00:00:00Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "4.7"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-RSA-1038401",
+        "identifiers": {
+          "CVE": [
+            "CVE-2020-25658"
+          ],
+          "CWE": [
+            "CWE-208"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2021-01-11T10:15:14.279276Z",
+        "moduleName": "rsa",
+        "packageManager": "pip",
+        "packageName": "rsa",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2020-11-10T15:27:31Z",
+        "references": [
+          {
+            "title": "GitHub Issue",
+            "url": "https://github.com/sybrenstuvel/python-rsa/issues/165"
+          },
+          {
+            "title": "RedHat Bugzilla Bug",
+            "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1889972"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[2.0,4.7)"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "high",
+        "title": "Timing Attack",
+        "from": [
+          "pip-playground@0.0.0",
+          "rsa@3.4.2"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "rsa",
+        "version": "3.4.2"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        "alternativeIds": [],
+        "creationTime": "2020-06-02T13:50:22.620471Z",
+        "credit": [
+          "Unknown"
+        ],
+        "cvssScore": 5.6,
+        "description": "## Overview\n[rsa](https://pypi.org/project/rsa/) is a pure-Python RSA implementation.\n\nAffected versions of this package are vulnerable to Access Restriction Bypass. It does not detect `ciphertext` modification during decryption (prepended \"0\" bytes) in `PKCS1_v1_5`.\n## Remediation\nUpgrade `rsa` to version 4.1 or higher.\n## References\n- [GitHub Commit](https://github.com/sybrenstuvel/python-rsa/commit/93af6f2f89a9bf28361e67716c4240e691520f30)\n- [GitHub Issue](https://github.com/sybrenstuvel/python-rsa/issues/146)\n",
+        "disclosureTime": "2020-06-02T13:45:26Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "4.1"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-RSA-570831",
+        "identifiers": {
+          "CVE": [
+            "CVE-2020-13757"
+          ],
+          "CWE": [
+            "CWE-284"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2020-06-11T15:47:53.077618Z",
+        "moduleName": "rsa",
+        "packageManager": "pip",
+        "packageName": "rsa",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2020-06-02T14:26:13Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/sybrenstuvel/python-rsa/commit/93af6f2f89a9bf28361e67716c4240e691520f30"
+          },
+          {
+            "title": "GitHub Issue",
+            "url": "https://github.com/sybrenstuvel/python-rsa/issues/146"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[0,4.1)"
+          ]
+        },
+        "severity": "medium",
+        "severityWithCritical": "medium",
+        "title": "Access Restriction Bypass",
+        "from": [
+          "pip-playground@0.0.0",
+          "rsa@3.4.2"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "rsa",
+        "version": "3.4.2"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:H/UI:N/S:C/C:H/I:N/A:H",
+        "alternativeIds": [],
+        "creationTime": "2020-10-01T09:28:31.276573Z",
+        "credit": [
+          "maxpl0it"
+        ],
+        "cvssScore": 7.7,
+        "description": "## Overview\n[urllib3](https://pypi.org/project/urllib3/) is a HTTP library with thread-safe connection pooling, file post, and more.\n\nAffected versions of this package are vulnerable to HTTP Header Injection. The 'method' parameter is not filtered to prevent the injection from altering the entire request.\r\n\r\nFor example:\r\n```\r\n>>> conn = http.client.HTTPConnection(\"localhost\", 80)\r\n>>> conn.request(method=\"GET / HTTP/1.1\\r\\nHost: abc\\r\\nRemainder:\", url=\"/index.html\")\r\n```\r\n\r\nThis will result in the following request being generated:\r\n```\r\nGET / HTTP/1.1\r\nHost: abc\r\nRemainder: /index.html HTTP/1.1\r\nHost: localhost\r\nAccept-Encoding: identity\r\n```\n## Remediation\nUpgrade `urllib3` to version 1.25.9 or higher.\n## References\n- [GitHub Commit](https://github.com/urllib3/urllib3/commit/1dd69c5c5982fae7c87a620d487c2ebf7a6b436b)\n- [GitHub PR](https://github.com/urllib3/urllib3/pull/1800)\n- [Python Issue Tracker](https://bugs.python.org/issue39603)\n",
+        "disclosureTime": "2020-10-01T08:25:02Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "1.25.9"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-URLLIB3-1014645",
+        "identifiers": {
+          "CVE": [
+            "CVE-2020-26137"
+          ],
+          "CWE": [
+            "CWE-644"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2020-10-01T16:24:15.792377Z",
+        "moduleName": "urllib3",
+        "packageManager": "pip",
+        "packageName": "urllib3",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2020-10-01T16:24:15.989107Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/urllib3/urllib3/commit/1dd69c5c5982fae7c87a620d487c2ebf7a6b436b"
+          },
+          {
+            "title": "GitHub PR",
+            "url": "https://github.com/urllib3/urllib3/pull/1800"
+          },
+          {
+            "title": "Python Issue Tracker",
+            "url": "https://bugs.python.org/issue39603"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[,1.25.9)"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "high",
+        "title": "HTTP Header Injection",
+        "from": [
+          "pip-playground@0.0.0",
+          "urllib3@1.21.1"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "urllib3",
+        "version": "1.21.1"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L/E:H/RL:O/RC:C",
+        "alternativeIds": [],
+        "creationTime": "2019-04-16T10:15:54.331131Z",
+        "credit": [
+          "ragdoll"
+        ],
+        "cvssScore": 7.3,
+        "description": "## Overview\n[urllib3](https://pypi.org/project/urllib3/) is a HTTP library with thread-safe connection pooling, file post, and more.\n\nAffected versions of this package are vulnerable to CRLF injection. Attacker who has the control of the requesting address parameter, could  manipulate an HTTP header and attack an internal service.\r\n\r\n## PoC\r\nby `ragdoll` and `Alvin Chang`\r\n```\r\nimport urllib3\r\n\r\npool_manager = urllib3.PoolManager()\r\n\r\nhost = \"localhost:7777?a=1 HTTP/1.1\\r\\nX-injected: header\\r\\nTEST: 123\"\r\nurl = \"http://\" + host + \":8080/test/?test=a\"\r\n\r\ntry:\r\n    info = pool_manager.request('GET', url).info()\r\n    print(info)\r\nexcept Exception:\r\n    pass\r\n\r\n# nc -l localhost 7777\r\nGET /?a=1 HTTP/1.1\r\nX-injected: header\r\nTEST: 123:8080/test/?test=a HTTP/1.1\r\nHost: localhost:7777\r\nAccept-Encoding: identity\r\n```\r\nThe nc server will display the HTTP request with a manipulated header content: `X-injected:header`, indicating a successful injection of the HTTP header.\n## Remediation\nUpgrade `urllib3` to version 1.24.3 or higher.\n## References\n- [GitHub Commit](https://github.com/urllib3/urllib3/commit/5d523706c7b03f947dc50a7e783758a2bfff0532)\n- [GitHub Issue](https://github.com/urllib3/urllib3/issues/1553)\n- [GitHub PR](https://github.com/urllib3/urllib3/pull/1487)\n- [GitHub PR](https://github.com/urllib3/urllib3/pull/1531)\n- [Python Bug Report](https://bugs.python.org/issue36276)\n",
+        "disclosureTime": "2019-04-15T16:12:12Z",
+        "exploit": "High",
+        "fixedIn": [
+          "1.24.3"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-URLLIB3-174323",
+        "identifiers": {
+          "CVE": [
+            "CVE-2019-11236"
+          ],
+          "CWE": [
+            "CWE-93"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2020-06-12T14:36:54.748350Z",
+        "moduleName": "urllib3",
+        "packageManager": "pip",
+        "packageName": "urllib3",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2019-04-18T16:12:12Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/urllib3/urllib3/commit/5d523706c7b03f947dc50a7e783758a2bfff0532"
+          },
+          {
+            "title": "GitHub Issue",
+            "url": "https://github.com/urllib3/urllib3/issues/1553"
+          },
+          {
+            "title": "GitHub PR",
+            "url": "https://github.com/urllib3/urllib3/pull/1487"
+          },
+          {
+            "title": "GitHub PR",
+            "url": "https://github.com/urllib3/urllib3/pull/1531"
+          },
+          {
+            "title": "Python Bug Report",
+            "url": "https://bugs.python.org/issue36276"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[,1.24.3)"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "high",
+        "title": "CRLF injection",
+        "from": [
+          "pip-playground@0.0.0",
+          "urllib3@1.21.1"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "urllib3",
+        "version": "1.21.1"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+        "alternativeIds": [],
+        "creationTime": "2019-04-21T12:54:36.347110Z",
+        "credit": [
+          "Unknown"
+        ],
+        "cvssScore": 7.5,
+        "description": "## Overview\n[urllib3](https://pypi.org/project/urllib3/) is a HTTP library with thread-safe connection pooling, file post, and more.\n\nAffected versions of this package are vulnerable to Improper Certificate Validation. It mishandles certain cases where the desired set of CA certificates is different from the OS store of CA certificates. This can result in SSL connections succeeding in situations where it should have failed.\n## Remediation\nUpgrade `urllib3` to version 1.24.2 or higher.\n## References\n- [GitHub Comparison](https://github.com/urllib3/urllib3/compare/a6ec68a...1efadf4)\n",
+        "disclosureTime": "2019-04-18T22:07:15Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "1.24.2"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-URLLIB3-174464",
+        "identifiers": {
+          "CVE": [
+            "CVE-2019-11324"
+          ],
+          "CWE": [
+            "CWE-295"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2020-06-12T14:37:00.776950Z",
+        "moduleName": "urllib3",
+        "packageManager": "pip",
+        "packageName": "urllib3",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2019-04-18T22:07:15Z",
+        "references": [
+          {
+            "title": "GitHub Comparison",
+            "url": "https://github.com/urllib3/urllib3/compare/a6ec68a...1efadf4"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[,1.24.2)"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "high",
+        "title": "Improper Certificate Validation",
+        "from": [
+          "pip-playground@0.0.0",
+          "urllib3@1.21.1"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "urllib3",
+        "version": "1.21.1"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+        "alternativeIds": [],
+        "creationTime": "2018-12-12T12:41:34.558379Z",
+        "credit": [
+          "Unknown"
+        ],
+        "cvssScore": 5.9,
+        "description": "## Overview\n \n[urllib3](https://pypi.org/project/urllib3/) is a HTTP library with thread-safe connection pooling, file post, and more.\n\n\nAffected versions of this package are vulnerable to Authentication Bypass.\nIt did remove the Authorization HTTP header when following a cross-origin redirect. This can allow for credentials in the Authorization header to be exposed to unintended hosts or transmitted in cleartext.\n\n## Remediation\n\nUpgrade urllib3 to version 1.23 or higher.\n\n\n## References\n\n- [GitHub Issue](https://github.com/urllib3/urllib3/issues/1316)\n\n- [GitHub PR](https://github.com/urllib3/urllib3/pull/1346)\n\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=1649153)\n",
+        "disclosureTime": "2018-12-11T18:20:29Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "1.23"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-URLLIB3-72681",
+        "identifiers": {
+          "CVE": [
+            "CVE-2018-20060"
+          ],
+          "CWE": [
+            "CWE-288"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2018-12-12T17:28:18.277222Z",
+        "moduleName": "urllib3",
+        "packageManager": "pip",
+        "packageName": "urllib3",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2018-12-12T17:28:18.256660Z",
+        "references": [
+          {
+            "title": "GitHub Issue",
+            "url": "https://github.com/urllib3/urllib3/issues/1316"
+          },
+          {
+            "title": "GitHub PR",
+            "url": "https://github.com/urllib3/urllib3/pull/1346"
+          },
+          {
+            "title": "RedHat Bugzilla Bug",
+            "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1649153"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[,1.23)"
+          ]
+        },
+        "severity": "medium",
+        "severityWithCritical": "medium",
+        "title": "Authentication Bypass",
+        "from": [
+          "pip-playground@0.0.0",
+          "urllib3@1.21.1"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "urllib3",
+        "version": "1.21.1"
+      }
+    ],
+    "upgrade": {},
+    "patch": {},
+    "ignore": {},
+    "pin": {
+      "django@1.11.27": {
+        "upgradeTo": "django@2.2.18",
+        "vulns": [
+          "SNYK-PYTHON-DJANGO-1066259",
+          "SNYK-PYTHON-DJANGO-1279042",
+          "SNYK-PYTHON-DJANGO-1290072",
+          "SNYK-PYTHON-DJANGO-543998",
+          "SNYK-PYTHON-DJANGO-559326"
+        ],
+        "isTransitive": false
+      },
+      "httplib2@0.10.3": {
+        "upgradeTo": "httplib2@0.19.0",
+        "vulns": [
+          "SNYK-PYTHON-HTTPLIB2-1065795",
+          "SNYK-PYTHON-HTTPLIB2-569758",
+          "SNYK-PYTHON-HTTPLIB2-570767"
+        ],
+        "isTransitive": true
+      },
+      "jinja2@2.9.6": {
+        "upgradeTo": "jinja2@2.11.3",
+        "vulns": [
+          "SNYK-PYTHON-JINJA2-1012994",
+          "SNYK-PYTHON-JINJA2-174126"
+        ],
+        "isTransitive": false
+      },
+      "rsa@3.4.2": {
+        "upgradeTo": "rsa@4.7",
+        "vulns": [
+          "SNYK-PYTHON-RSA-1038401",
+          "SNYK-PYTHON-RSA-570831"
+        ],
+        "isTransitive": false
+      },
+      "urllib3@1.21.1": {
+        "upgradeTo": "urllib3@1.25.9",
+        "vulns": [
+          "SNYK-PYTHON-URLLIB3-1014645",
+          "SNYK-PYTHON-URLLIB3-174323",
+          "SNYK-PYTHON-URLLIB3-174464",
+          "SNYK-PYTHON-URLLIB3-72681"
+        ],
+        "isTransitive": false
+      }
+    }
+  },
+  "filesystemPolicy": false,
+  "filtered": {
+    "ignore": [],
+    "patch": []
+  },
+  "uniqueCount": 16,
+  "projectName": "pip-playground",
+  "displayTargetFile": "requirements.txt",
+  "path": "/Users/andrelajter/Documents/GitHub/pip-playground"
+}
